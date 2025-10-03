@@ -39,6 +39,12 @@ jobs:
         with:
           node-version: 20
           cache: npm
+      - name: Ensure jq is installed
+        run: |
+          if ! command -v jq >/dev/null 2>&1; then
+            sudo apt-get update -y
+            sudo apt-get install -y jq
+          fi
       - name: Build MCP server
         run: |
           cd mcp-docker
@@ -46,6 +52,7 @@ jobs:
           npm run build
       - name: Start labeled container
         run: |
+          docker rm -f mcp-hello || true
           docker run -d --name mcp-hello --label mcp=allowed hello-world || true
       - name: Run MCP self-test (read-only)
         env:

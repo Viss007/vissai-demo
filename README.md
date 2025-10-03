@@ -7,7 +7,6 @@
   - `POST /api/run` — accepts `{ name, phone, reason, action, lang }` and returns an ID, inferred intent, and **draft email/SMS**.
 - A **static voice demo** is included at `/voice-demo/` (from your design ZIP), plus a simple `/voice` page that links to it.
 
-
 ## Development
 
 ```bash

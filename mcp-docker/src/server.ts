@@ -186,9 +186,16 @@ async function main() {
   if (process.argv.includes('--self-test')) {
     try {
       await reachable()
-      const res = await listContainers.execute({ label: LABEL_ALLOW })
+      const res = await listContainers.execute({ all: true, label: LABEL_ALLOW }) as any
+      let logs: any = null
+      if (res?.ok && Array.isArray(res.data)) {
+        const first = res.data[0]
+        if (first?.id) {
+          logs = await containerLogs.execute({ id: first.id, tail: 50 })
+        }
+      }
       // eslint-disable-next-line no-console
-      console.log(JSON.stringify({ ok: (res as any).ok === true, data: res }))
+      console.log(JSON.stringify({ ok: (res as any).ok === true, count: Array.isArray((res as any).data) ? (res as any).data.length : 0, logs }))
       process.exit(0)
     } catch (e: any) {
       // eslint-disable-next-line no-console

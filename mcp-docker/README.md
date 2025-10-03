@@ -49,3 +49,21 @@ Add this to `.vscode/settings.json`:
 - Write operations require both env `ALLOW_WRITE=true` and `confirm: true` input
 - Containers must have label `mcp=allowed`
 - Images must be in `IMAGE_ALLOWLIST`
+
+## CI/Self-test
+
+You can run a quick self-test to verify read operations and basic connectivity:
+
+```bash
+node mcp-docker/dist/server.js --self-test
+```
+
+Expected output (shape):
+
+```json
+{ "ok": true, "count": 1, "logs": { "ok": true, "data": { "id": "...", "tail": 50, "logs": "..." } } }
+```
+
+Notes:
+- Containers must be labeled `mcp=allowed` to be listed and for logs to be fetched.
+- The GitHub Actions CI runs this self-test in a read-only job.
