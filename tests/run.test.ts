@@ -1,4 +1,5 @@
-import { POST, __resetRunCounters } from '../app/api/run/route'
+import { POST } from '../app/api/run/route'
+import { resetRunCounters } from '../lib/runState'
 import { describe, it, expect, beforeEach } from 'vitest'
 
 function makeRequest(body: any) {
@@ -11,7 +12,7 @@ function makeRequest(body: any) {
 
 describe('/api/run POST', () => {
   beforeEach(() => {
-    __resetRunCounters()
+    resetRunCounters()
   })
 
   it('returns draft for valid body', async () => {

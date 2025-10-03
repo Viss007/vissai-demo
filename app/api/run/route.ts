@@ -1,10 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { v4 as uuidv4 } from 'uuid'
 import { z } from 'zod'
-
-// In-memory counters (shared simplistic demo)
-export let draftCount = 0
-export function __resetRunCounters() { draftCount = 0 }
+import { draftCount, incrementDrafts } from '../../../lib/runState'
 
 // Validation schema (all fields optional but if present must meet constraints)
 const RunSchema = z.object({
@@ -39,7 +36,7 @@ export async function POST(request: NextRequest) {
     // Generate draft response based on language
     const draft = generateDraft(name, reason, action, lang)
     
-    draftCount++
+  incrementDrafts()
     
     const latencyMs = Date.now() - start
     return NextResponse.json({
