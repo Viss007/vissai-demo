@@ -96,3 +96,19 @@ See `.env.example` for placeholders (`NEXT_PUBLIC_SITE_URL`, future keys). None 
 - Add future email / analytics keys in `.env` when extending.
 
 Generated on 2025-10-03.
+
+## UI Overview
+
+Home (/) provides:
+
+- API Playground to POST /api/run with fields: name, phone, reason, action, lang
+- Health panel that fetches /api/healthz with a Refresh button
+- Collapsible boxes to inspect request/response JSON and health payloads
+
+Voice (/voice):
+
+- Embeds `public/voice-demo/setup.html` in an iframe; includes a fallback link and a back-to-home link
+
+Accessibility/UX:
+
+- Labels on inputs, visible focus states, basic error summary with aria-live on results
