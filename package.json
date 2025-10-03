@@ -1,0 +1,12 @@
+{
+  "name": "automation-engine-demo",
+  "version": "0.0.1",
+  "scripts": {
+    "build": "next build",
+    "start": "next start -p $PORT",
+    "dev": "next dev"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

@@ -1,0 +1,8 @@
+Validated sources for deploy & runtime assumptions
+Generated: 2025-10-03
+
+- OpenAI Realtime API (WebRTC): https://help.openai.com/en/articles/9949624-realtime-api
+- Next.js CLI (official): https://nextjs.org/docs/app/api-reference/cli/next
+- Next.js CLI (v13 docs): https://nextjs.org/docs/13/app/api-reference/next-cli
+- Railway Next.js template (GitHub deploy): https://railway.com/template/yDom4a
+- Railway Node/Express deploy guide: https://docs.railway.com/guides/deploy-node-express-api-with-auto-scaling-secrets-and-zero-downtime
