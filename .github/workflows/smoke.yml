@@ -12,10 +12,16 @@ jobs:
   probe-prod:
     if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' }}
     runs-on: ubuntu-latest
+    env:
+      PROD_BASE_URL: ${{ secrets.PROD_BASE_URL }}
     steps:
+      - name: Ensure jq is installed
+        run: |
+          if ! command -v jq >/dev/null 2>&1; then
+            sudo apt-get update -y
+            sudo apt-get install -y jq
+          fi
       - name: Probe /api/healthz
-        env:
-          PROD_BASE_URL: ${{ secrets.PROD_BASE_URL }}
         run: |
           if [ -z "$PROD_BASE_URL" ]; then
             echo "Missing PROD_BASE_URL secret"; exit 1;
