@@ -1,0 +1,190 @@
+import Docker from 'dockerode'
+import { createServer } from '@modelcontextprotocol/sdk'
+
+const TIMEOUT_MS = 10_000
+const LABEL_ALLOW = 'mcp=allowed'
+
+function envBool(name: string, def = false) {
+  const v = process.env[name]
+  if (v == null) return def
+  return v.toLowerCase() === 'true' || v === '1'
+}
+
+function parseAllowlist(): Set<string> {
+  const s = process.env.IMAGE_ALLOWLIST || 'nginx:alpine,hello-world'
+  return new Set(s.split(',').map(v => v.trim()).filter(Boolean))
+}
+
+function withTimeout<T>(p: Promise<T>, ms = TIMEOUT_MS): Promise<T> {
+  return new Promise((resolve, reject) => {
+    const t = setTimeout(() => reject(new Error('timeout')), ms)
+    p.then((v) => { clearTimeout(t); resolve(v) }, (e) => { clearTimeout(t); reject(e) })
+  })
+}
+
+function ok<T>(data: T) { return { ok: true as const, data } }
+function err(message: string) { return { ok: false as const, error: message } }
+
+async function main() {
+  const docker = new Docker({ socketPath: process.env.DOCKER_HOST?.startsWith('unix://') ? process.env.DOCKER_HOST.replace('unix://','') : undefined })
+  const allowWrite = envBool('ALLOW_WRITE', false)
+  const imageAllow = parseAllowlist()
+
+  async function reachable() {
+    try { await docker.ping() } catch { throw new Error('Docker not reachable') }
+  }
+
+  const listContainers: any = {
+    name: 'docker.listContainers',
+    description: 'List containers with minimal fields; filter by label.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        all: { type: 'boolean' },
+        label: { type: 'string', description: 'label filter, defaults to mcp=allowed' }
+      },
+      additionalProperties: false
+    },
+    async execute(input: any) {
+      try {
+        await reachable()
+        const all = !!input?.all
+        const label = (input?.label as string) || LABEL_ALLOW
+  const containers = await withTimeout(docker.listContainers({ all, filters: { label: [label] } as any })) as any[]
+  const data = containers.map((c: any) => ({
+          id: c.Id,
+          name: (c.Names && c.Names[0]) || '',
+          image: c.Image,
+          state: c.State,
+          status: c.Status,
+          labels: c.Labels
+        }))
+        return ok(data)
+      } catch (e: any) { return err(e?.message || 'list error') }
+    }
+  }
+
+  const containerLogs: any = {
+    name: 'docker.containerLogs',
+    description: 'Tail logs for a labeled container',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        id: { type: 'string' },
+        tail: { type: 'number', minimum: 1, maximum: 5000 }
+      },
+      required: ['id'],
+      additionalProperties: false
+    },
+    async execute(input: any) {
+      try {
+        await reachable()
+        const id = String(input.id)
+        const tail = Math.min(Math.max(Number(input.tail || 200), 1), 5000)
+        const c = docker.getContainer(id)
+  const inspect = await withTimeout(c.inspect()) as any
+        if (!inspect?.Config?.Labels || inspect.Config.Labels['mcp'] !== 'allowed') return err('container not allowed')
+        const raw = await withTimeout(c.logs({ stdout: true, stderr: true, tail, timestamps: false }))
+        const text = Buffer.isBuffer(raw) ? raw.toString('utf8') : String(raw)
+        // cap
+        const trimmed = text.length > 10_000 ? text.slice(-10_000) : text
+        return ok({ id, tail, logs: trimmed })
+      } catch (e: any) { return err(e?.message || 'logs error') }
+    }
+  }
+
+  const inspectContainer: any = {
+    name: 'docker.inspectContainer',
+    description: 'Inspect a labeled container and return a safe subset',
+    inputSchema: {
+      type: 'object',
+      properties: { id: { type: 'string' } },
+      required: ['id'],
+      additionalProperties: false
+    },
+    async execute(input: any) {
+      try {
+        await reachable()
+        const id = String(input.id)
+        const c = docker.getContainer(id)
+  const info = await withTimeout(c.inspect()) as any
+        if (!info?.Config?.Labels || info.Config.Labels['mcp'] !== 'allowed') return err('container not allowed')
+        const data = {
+          id,
+          Name: info.Name,
+          Image: info.Config?.Image,
+          State: info.State,
+          Created: info.Created,
+          Labels: info.Config?.Labels,
+          Ports: info.NetworkSettings?.Ports
+        }
+        return ok(data)
+      } catch (e: any) { return err(e?.message || 'inspect error') }
+    }
+  }
+
+  const restartContainer: any = {
+    name: 'docker.restartContainer',
+    description: 'Restart a labeled container (requires ALLOW_WRITE=true and confirm=true)',
+    inputSchema: {
+      type: 'object',
+      properties: { id: { type: 'string' }, confirm: { type: 'boolean' } },
+      required: ['id', 'confirm'],
+      additionalProperties: false
+    },
+    async execute(input: any) {
+      try {
+        await reachable()
+        if (!allowWrite) return err('write ops disabled')
+        if (!input.confirm) return err('confirmation required')
+        const id = String(input.id)
+        const c = docker.getContainer(id)
+        const info = await withTimeout(c.inspect())
+        if (!info?.Config?.Labels || info.Config.Labels['mcp'] !== 'allowed') return err('container not allowed')
+        await withTimeout(c.restart())
+        return ok({ id, restarted: true })
+      } catch (e: any) { return err(e?.message || 'restart error') }
+    }
+  }
+
+  const pullImage: any = {
+    name: 'docker.pullImage',
+    description: 'Pull an allowed image (requires ALLOW_WRITE=true and confirm=true)',
+    inputSchema: {
+      type: 'object',
+      properties: { name: { type: 'string' }, confirm: { type: 'boolean' } },
+      required: ['name', 'confirm'],
+      additionalProperties: false
+    },
+    async execute(input: any) {
+      try {
+        await reachable()
+        if (!allowWrite) return err('write ops disabled')
+        if (!input.confirm) return err('confirmation required')
+        const name = String(input.name)
+        if (!imageAllow.has(name)) return err('image not allow-listed')
+        const stream = await withTimeout(docker.pull(name))
+        await new Promise<void>((resolve, reject) => {
+          docker.modem.followProgress(stream, (err: any) => err ? reject(err) : resolve())
+        })
+        return ok({ name, pulled: true })
+      } catch (e: any) { return err(e?.message || 'pull error') }
+    }
+  }
+
+  const server = createServer({
+    name: 'docker-mcp',
+    version: '0.1.0',
+    tools: [listContainers, containerLogs, inspectContainer, restartContainer, pullImage]
+  })
+
+  server.start()
+  // eslint-disable-next-line no-console
+  console.log('[docker-mcp] started. allowWrite=%s allowlist=%s', allowWrite, Array.from(imageAllow).join(','))
+}
+
+main().catch(e => {
+  // eslint-disable-next-line no-console
+  console.error('[docker-mcp] fatal:', e?.message)
+  process.exit(1)
+})
