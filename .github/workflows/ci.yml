@@ -29,3 +29,27 @@ jobs:
         run: npm test --if-present
       - name: Build
         run: npm run build
+
+  mcp-docker-smoke:
+    name: MCP Docker Smoke (read-only)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - name: Build MCP server
+        run: |
+          cd mcp-docker
+          npm ci
+          npm run build
+      - name: Start labeled container
+        run: |
+          docker run -d --name mcp-hello --label mcp=allowed hello-world || true
+      - name: Run MCP self-test (read-only)
+        env:
+          ALLOW_WRITE: 'false'
+        run: |
+          node mcp-docker/dist/server.js --self-test | tee out.json
+          cat out.json | jq -e '.ok == true' >/dev/null

@@ -181,6 +181,21 @@ async function main() {
   server.start()
   // eslint-disable-next-line no-console
   console.log('[docker-mcp] started. allowWrite=%s allowlist=%s', allowWrite, Array.from(imageAllow).join(','))
+
+  // Simple self-test when invoked as: node dist/server.js --self-test
+  if (process.argv.includes('--self-test')) {
+    try {
+      await reachable()
+      const res = await listContainers.execute({ label: LABEL_ALLOW })
+      // eslint-disable-next-line no-console
+      console.log(JSON.stringify({ ok: (res as any).ok === true, data: res }))
+      process.exit(0)
+    } catch (e: any) {
+      // eslint-disable-next-line no-console
+      console.log(JSON.stringify({ ok: false, error: e?.message || 'self-test error' }))
+      process.exit(0)
+    }
+  }
 }
 
 main().catch(e => {
