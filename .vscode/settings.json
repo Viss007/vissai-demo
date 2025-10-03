@@ -1,0 +1,58 @@
+{
+  "mcp": {
+    "servers": {
+      "vissai-demo": {
+        "command": "node",
+        "args": ["/workspaces/vissai-demo/mcp-server/server.js"],
+        "description": "Custom MCP server for vissai-demo project with health checks, tests, and deployment tools"
+      },
+      "azure": {
+        "command": "node",
+        "args": [
+          "/home/vscode/.vscode-server/extensions/ms-azuretools.vscode-azure-mcp-server-*/out/server.js"
+        ],
+        "description": "Azure MCP Server for Azure services integration"
+      },
+      "docker-mcp": {
+        "command": "node",
+        "args": ["/workspaces/vissai-demo/mcp-docker/dist/server.js"],
+        "env": { "ALLOW_WRITE": "false" },
+        "description": "Docker MCP server with read-only defaults and strong guardrails"
+      }
+    }
+  },
+  "github.copilot.enable": {
+    "*": true,
+    "plaintext": true,
+    "markdown": true,
+    "typescript": true,
+    "javascript": true
+  },
+  "cline.mcpServers": {
+    "vissai-demo": {
+      "command": "node",
+      "args": ["/workspaces/vissai-demo/mcp-server/server.js"]
+    },
+    "azure": {
+      "command": "node",
+      "args": ["/home/vscode/.vscode-server/extensions/ms-azuretools.vscode-azure-mcp-server-*/out/server.js"]
+    },
+    "docker-mcp": {
+      "command": "node",
+      "args": ["/workspaces/vissai-demo/mcp-docker/dist/server.js"],
+      "env": { "ALLOW_WRITE": "false" }
+    }
+  },
+  "roo.mcpServers": {
+    "vissai-demo": {
+      "command": "node",
+      "args": ["/workspaces/vissai-demo/mcp-server/server.js"]
+    },
+    "docker-mcp": {
+      "command": "node",
+      "args": ["/workspaces/vissai-demo/mcp-docker/dist/server.js"],
+      "env": { "ALLOW_WRITE": "false" }
+    }
+  },
+  "chat.experimental.startConversationInNewChat": false
+}
