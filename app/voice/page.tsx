@@ -1,36 +1,17 @@
 export default function VoicePage() {
+  const demoPath = '/voice-demo/setup.html'
+  // No runtime FS check on server; we just link/iframe and let the browser handle 404 if missing
   return (
-    <div style={{ maxWidth: '600px', margin: '2rem auto', padding: '0 1rem' }}>
-      <h1>Voice Demo</h1>
-      <p>Welcome to the voice automation demo!</p>
-      
-      <div style={{ marginBottom: '2rem' }}>
-        <h2>Available Demos:</h2>
-        <ul>
-          <li>
-            <a href="/voice-demo/setup.html" style={{ color: '#007bff', textDecoration: 'none' }}>
-              Interactive Form Demo
-            </a>
-            <p style={{ color: '#666', fontSize: '0.9rem' }}>
-              Fill out a form and see how the automation engine processes your request
-            </p>
-          </li>
-        </ul>
+    <div className="container">
+      <h1>Voice</h1>
+      <p style={{ color: '#a0a3ad' }}>Embedded static demo from <code>public/voice-demo</code>.</p>
+      <div className="card" style={{ padding: 0 }}>
+        <iframe src={demoPath} title="Voice Demo" style={{ width: '100%', height: '70vh', border: 'none' }} />
       </div>
-      
-      <div style={{ backgroundColor: '#f8f9fa', padding: '1rem', borderRadius: '4px' }}>
-        <h3>API Endpoints:</h3>
-        <ul>
-          <li><code>/api/healthz</code> - Health check and statistics</li>
-          <li><code>/api/run</code> - Submit automation requests</li>
-        </ul>
-      </div>
-      
-      <div style={{ marginTop: '2rem' }}>
-        <a href="/" style={{ color: '#007bff', textDecoration: 'none' }}>
-          ← Back to Home
-        </a>
-      </div>
+      <p style={{ marginTop: '1rem' }}>
+        If the demo doesn’t load, open <a href={demoPath} target="_blank" rel="noreferrer">{demoPath}</a> in a new tab.
+      </p>
+      <p><a href="/">← Back to Home</a></p>
     </div>
   )
 }
