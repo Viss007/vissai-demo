@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Voice Bot Test</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="bot-page">
+  <header class="bot-header">
+    <h1>Voice Bot Demo</h1>
+    <button id="logout-btn" class="logout-btn">Logout</button>
+  </header>
+  <main>
+    <div class="conversation" id="conversation">
+      <div class="message bot"><span class="name">Bot:</span> Hello! I'm your assistant. How can I help you?</div>
+    </div>
+    <div class="input-area">
+      <input type="text" id="user-input" placeholder="Type your message or press Speak" autocomplete="off">
+      <button id="speak-btn" class="speak-btn">🎙️ Speak</button>
+      <button id="send-btn" class="send-btn">Send</button>
+    </div>
+    <p class="tries">Remaining free tries: <span id="tries">10</span></p>
+
+    <!-- Voice modal overlay (appears after setup) -->
+    <div id="voice-overlay" class="voice-overlay">
+      <div class="voice-circle"></div>
+      <div class="voice-controls">
+        <button id="overlay-mic-btn" class="overlay-btn mic"><span>🎤</span></button>
+        <button id="overlay-close-btn" class="overlay-btn close"><span>✕</span></button>
+      </div>
+    </div>
+  </main>
+  <script src="script.js"></script>
+</body>
+</html>
