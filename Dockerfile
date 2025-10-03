@@ -13,6 +13,7 @@ RUN npm run build
 FROM node:20-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV=production
+ENV PORT=3000
 COPY --from=builder /app .
 
 # Ensure node user owns working dir
@@ -20,5 +21,5 @@ RUN chown -R node:node /app
 USER node
 
 EXPOSE 3000
-HEALTHCHECK --interval=30s --timeout=3s --retries=3 CMD wget -qO- http://localhost:3000/api/healthz || exit 1
+HEALTHCHECK --interval=30s --timeout=3s --retries=3 CMD wget -qO- http://localhost:${PORT}/api/healthz || exit 1
 CMD ["npm","start"]
