@@ -32,7 +32,10 @@
 - **Static root:** place files under `public/voicebot/`; **use relative asset paths**.
 - **Routing safety-net:** keep `app/voicebot/page.tsx` so `/voicebot` never 404s.
 - **APIs:** small handler per route; return `{ ok, ... }`; in-memory counters/rate-limits for demo only.
+- **Shared state:** `lib/healthzState.ts` & `lib/runState.ts` hold counters (reset on redeploy).
 - **OpenAI:** `/api/chat` is server-side proxy (Responses API), low `max_output_tokens`, tiny rate-limit bucket.
+- **Validation:** Zod schemas; `/api/run` supports `lang:'en'|'lt'` for draft localization.
+- **Tests:** Vitest; mock NextRequest with `new Request(url, {method, headers, body})`.
 - **PRs:** small & verifiable; include **curl outputs** in PR body.
 
 ## Gotchas
@@ -44,8 +47,10 @@
 ## File Map
 - **Static routing:** `app/page.tsx`, `app/voicebot/page.tsx`, `next.config.js`
 - **APIs:** `app/api/healthz/route.ts`, `app/api/run/route.ts`, `app/api/chat/route.ts`
+- **Shared state:** `lib/healthzState.ts`, `lib/runState.ts`
 - **Static UI:** `public/voicebot/` (index.html, setup.html, voicebot.html, style.css, script.js)
-- **CI:** `.github/workflows/ci.yml`, `.github/workflows/smoke.yml`
+- **Tests:** `tests/healthz.test.ts`, `tests/run.test.ts`
+- **CI:** `.github/workflows/ci.yml`, `.github/workflows/smoke.yml`, `.github/workflows/docker.yml`
 
 ## Acceptance Before Merge
 - `npm run build` passes; PR is minimal; attach curl proofs.
