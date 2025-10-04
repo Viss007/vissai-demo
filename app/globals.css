@@ -23,3 +23,20 @@ button[disabled]{ opacity:0.6; cursor:not-allowed; }
 .collapsible__content{ margin-top:0.5rem; }
 .error{ background:#2b0f13; border:1px solid #5b1d24; color:#ffb3b3; padding:0.75rem; border-radius:6px; margin-top:0.75rem; }
 h1{ margin-top:0; }
+
+/* Chat UI styles used by /voicebot/webrtc */
+.chat-container { border: 1px solid #1a1d25; border-radius: 8px; height: 400px; overflow-y: auto; padding: 16px; background: #0b0c12; margin-bottom: 20px; }
+.bubble { margin: 8px 0; padding: 12px; border-radius: 12px; max-width: 80%; line-height: 1.4; }
+.bubble.bot { background: #111; color: #fff; margin-right: auto; }
+.bubble.user { background: #1a1d25; color: #e9eaf0; margin-left: auto; }
+.controls { display: flex; gap: 12px; align-items: center; margin-bottom: 20px; }
+.btn { padding: 12px 24px; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: 500; }
+.btn-primary { background: #3b82f6; color: white; }
+.btn-primary:hover { background: #2563eb; }
+.btn-danger { background: #ef4444; color: white; }
+.btn-danger:hover { background: #dc2626; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.status.connected { background: #0f3e1a; color: #a8e6a1; }
+.status.connecting { background: #3a3415; color: #f5d37b; }
+.status.disconnected { background: #4a2020; color: #f2a7a7; }
+.audio-notice { background: #0f264c; color: #a3c5ff; padding: 12px; border-radius: 6px; margin: 10px 0; cursor: pointer; }

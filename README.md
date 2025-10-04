@@ -1,114 +1,87 @@
-# Automation Engine Demo (Next.js + API) — Railway-ready
+
+# Voice Bot Demo (Next.js + OpenAI Realtime API) — Railway-ready
 
 ## What this is
 
-- A tiny Next.js app with two endpoints:
-  - `GET /api/healthz` — counters for requests/drafts/avgLatency.
-  - `POST /api/run` — accepts `{ name, phone, reason, action, lang }` and returns an ID, inferred intent, and **draft email/SMS**.
-- A **static voice demo** is included at `/voice-demo/` (from your design ZIP), plus a simple `/voice` page that links to it.
+- Next.js app with two parts:
+  - Classic automation demo endpoints:
+    - `GET /api/healthz` — health JSON with counters and avg latency
+    - `POST /api/run` — `{ name, phone, reason, action, lang } → { id, intent, draft, latency }`
+  - Realtime voice demo using OpenAI Realtime API over WebRTC at `/voicebot/webrtc`
+- Additional API:
+  - `POST /api/realtime/ephemeral` — mints short‑lived OpenAI Realtime session token
 
-
-## Development
-
-```bash
-npm install   # or npm ci if lockfile present
-npm run dev   # starts Next.js on http://localhost:3000
-open http://localhost:3000/voice-demo/setup.html
-```
-
-## Build & Start (Production)
+## Local development
 
 ```bash
-npm run build
-PORT=3000 npm start   # uses next start -p $PORT
+npm ci
+echo "OPENAI_API_KEY=your_key_here" >> .env.local   # needed for realtime demo
+npm run dev
+# Open classic static root: http://localhost:3000/voicebot/index.html
+# Or the realtime demo:     http://localhost:3000/voicebot/webrtc
 ```
+
+## Voice Demo Features
+
+- Real-time voice conversation with OpenAI GPT-4o
+- WebRTC audio streaming with minimal latency
+- Live transcripts showing partial and complete user/bot speech
+- Production-safe ephemeral key flow (API key stays on server)
+- Works on mobile with proper autoplay handling
 
 ## Deploy to Railway (drag & drop via GitHub)
 
-1. Create a **new GitHub repo** and push this folder.
+1. Create a new GitHub repo and push this folder.
 2. In Railway: New Project → Deploy from GitHub → select the repo.
-3. Railway auto-detects Node. Build: `npm run build`. Start: `next start -p $PORT` (already in package.json).
-4. After deploy, open:
-
-- `/api/healthz` (should return JSON with `ok: true`).
-- `/voice-demo/setup.html` (fill form → test demo).
+3. Add environment variable: `OPENAI_API_KEY=your_openai_key`
+4. Railway auto-detects Node. Build: `npm run build`. Start: `next start -p $PORT`.
+5. After deploy, test:
+   - `/api/healthz` (should return JSON with `ok: true`)
+   - `/voicebot/index.html` (static demo root)
+   - `/voicebot/webrtc` (grant mic → start talking)
 
 ## API examples
 
+Health check:
+
 ```bash
-curl -X POST $HOST/api/run -H 'content-type: application/json' -d '{
-  "name":"Austėja","phone":"+370...", "reason":"Norėčiau rezervuoti", "action":"bookings", "lang":"lt"
-}'
+curl -fsSL $HOST/api/healthz
 ```
 
-## Customize messages & behavior
+Get ephemeral session (requires OPENAI_API_KEY):
 
-- Tweak `app/api/run/route.ts` → `replyDraft` to change Lithuanian/English drafts.
-- The static demo JavaScript (`/public/voice-demo/script.js`) calls `/api/run` and `/api/healthz` on the same origin.
+```bash
+curl -X POST $HOST/api/realtime/ephemeral -H 'content-type: application/json'
+```
+
+## Architecture & Tech Stack
+
+- Frontend: Next.js 15, TypeScript, React 19
+- WebRTC: RTCPeerConnection with OpenAI Realtime API
+- Audio: MediaStream API with autoplay policy handling
+- Security: Ephemeral keys (server-only API key access)
+- Deployment: Railway-ready with Docker support
+
+## How to Extend
+
+- Add new endpoints in `app/api/`
+- Customize voice prompts via the WebRTC data channel
+- Add push-to-talk functionality (mute/unmute tracks)
+- Integrate with Twilio for phone support
 
 ## Docker
 
-Multi-stage image (non-root, healthcheck) defined in `Dockerfile`.
-
 ```bash
-docker build -t engine-demo .
-docker run -p 3000:3000 --name engine-demo engine-demo
-docker inspect --format='{{json .State.Health}}' engine-demo | jq
+docker build -t voice-demo .
+docker run -p 3000:3000 -e OPENAI_API_KEY=your_key voice-demo
 ```
-
-Health check hits `/api/healthz` every 30s; container becomes `healthy` after first successful probe.
-
-## CI
-
-`CI` workflow (Node) runs on PRs & pushes to `main`:
-
-- install deps → typecheck → tests (Vitest) → build
-
-`docker` workflow (GHCR) builds/pushes & signs images (cosign) on `main`, tags & schedule.
-
-## Smoke Test
-
-`Smoke Test` workflow triggers after successful `CI` on `main` (and nightly cron) and `curl`s:
-
-```bash
-curl "$PROD_BASE_URL/api/healthz"
-```
-
-It fails if `.ok != true`. Configure the secret `PROD_BASE_URL` in repository or environment settings.
-
-## GHCR Images
-
-Images published to: `ghcr.io/<owner>/<repo>:<tag>` via metadata action (sha / branch / semver tags).
-Pull example:
-
-```bash
-docker pull ghcr.io/OWNER/REPO:sha-<short>
-```
-
-## Environment Variables
-
-See `.env.example` for placeholders (`NEXT_PUBLIC_SITE_URL`, future keys). None required for base demo.
 
 ## Notes
 
-- In-memory counters reset on redeploy.
-- No secrets required for basic demo.
-- Add future email / analytics keys in `.env` when extending.
+- Ephemeral tokens are short-lived (fetched right before WebRTC connection)
+- No secrets are exposed to the browser
+- Works on iOS Safari with proper audio handling
+- Uses standard STUN servers for NAT traversal
 
-Generated on 2025-10-03.
-
-## UI Overview
-
-Home (/) provides:
-
-- API Playground to POST /api/run with fields: name, phone, reason, action, lang
-- Health panel that fetches /api/healthz with a Refresh button
-- Collapsible boxes to inspect request/response JSON and health payloads
-
-Voice (/voice):
-
-- Embeds `public/voice-demo/setup.html` in an iframe; includes a fallback link and a back-to-home link
-
-Accessibility/UX:
-
-- Labels on inputs, visible focus states, basic error summary with aria-live on results
+---
+Updated on 2025-10-04.

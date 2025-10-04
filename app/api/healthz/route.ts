@@ -3,7 +3,6 @@ import { requestCount, draftCount, recordRequest, avgLatency } from '../../../li
 
 export async function GET() {
   const startTime = Date.now()
-  
   const endTime = Date.now()
   const currentLatency = endTime - startTime
   recordRequest(currentLatency)
@@ -14,6 +13,7 @@ export async function GET() {
     requests: requestCount,
     drafts: draftCount,
     avgLatency: Math.round(average * 100) / 100,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    ts: new Date().toISOString(),
   })
 }
