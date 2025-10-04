@@ -1,7 +1,8 @@
 FROM node:20-alpine AS deps
 WORKDIR /app
 COPY package*.json ./
-RUN npm ci
+# Use npm install (lockfile optional) for flexibility
+RUN npm install --production=false
 
 FROM node:20-alpine AS builder
 WORKDIR /app
@@ -13,5 +14,11 @@ FROM node:20-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 COPY --from=builder /app .
+
+# Ensure node user owns working dir
+RUN chown -R node:node /app
+USER node
+
 EXPOSE 3000
+HEALTHCHECK --interval=30s --timeout=3s --retries=3 CMD wget -qO- http://localhost:3000/api/healthz || exit 1
 CMD ["npm","start"]

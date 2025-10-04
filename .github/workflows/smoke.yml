@@ -1,0 +1,26 @@
+name: Smoke Test
+
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+  schedule:
+    - cron: '19 18 * * *'
+
+jobs:
+  probe-prod:
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Probe /api/healthz
+        env:
+          PROD_BASE_URL: ${{ secrets.PROD_BASE_URL }}
+        run: |
+          if [ -z "$PROD_BASE_URL" ]; then
+            echo "Missing PROD_BASE_URL secret"; exit 1;
+          fi
+          set -e
+          RESP=$(curl -fsSL "$PROD_BASE_URL/api/healthz" || exit 1)
+          echo "Response: $RESP"
+          echo "$RESP" | jq -e '.ok == true' >/dev/null || { echo "Health check failed: .ok != true"; exit 1; }

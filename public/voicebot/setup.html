@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agent Setup</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="setup-page">
+  <div class="setup-container">
+    <h1>Configure Your Agent</h1>
+    <p>Provide a few details so the voice assistant can adapt to your business.</p>
+    <form id="setup-form" class="setup-form">
+      <div class="form-group">
+        <label for="business-name">Business Name</label>
+        <input type="text" id="business-name" placeholder="e.g. La Pergola Pizzeria" required>
+      </div>
+      <div class="form-group">
+        <label for="industry">Industry / Service Type</label>
+        <input type="text" id="industry" placeholder="e.g. Restaurant, Clinic" required>
+      </div>
+      <div class="form-group">
+        <label for="welcome-msg">Greeting for Customers</label>
+        <input type="text" id="welcome-msg" placeholder="e.g. Hi! Thanks for calling La Pergola" required>
+      </div>
+      <div class="form-group">
+        <label for="default-action">What do you want the agent to do?</label>
+        <select id="default-action" required>
+          <option value="bookings">Take bookings</option>
+          <option value="faq">Answer FAQs</option>
+          <option value="support">Provide support</option>
+        </select>
+      </div>
+      <button type="submit" class="setup-btn">Start Test</button>
+    </form>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>

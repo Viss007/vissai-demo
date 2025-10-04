@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice Demo Setup</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            line-height: 1.6;
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #result {
+            margin-top: 2rem;
+            padding: 1rem;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>Voice Demo Setup</h1>
+    <p>Fill out this form to test the automation engine API.</p>
+    
+    <form id="demoForm">
+        <div class="form-group">
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" required value="Austėja">
+        </div>
+        
+        <div class="form-group">
+            <label for="phone">Phone:</label>
+            <input type="tel" id="phone" name="phone" required value="+370123456789">
+        </div>
+        
+        <div class="form-group">
+            <label for="reason">Reason:</label>
+            <textarea id="reason" name="reason" required>Norėčiau rezervuoti stalą šio vakaro vakarienei</textarea>
+        </div>
+        
+        <div class="form-group">
+            <label for="action">Action:</label>
+            <select id="action" name="action" required>
+                <option value="bookings">Bookings</option>
+                <option value="support">Support</option>
+                <option value="information">Information</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="lang">Language:</label>
+            <select id="lang" name="lang" required>
+                <option value="lt">Lithuanian</option>
+                <option value="en">English</option>
+            </select>
+        </div>
+        
+        <button type="submit">Submit Request</button>
+    </form>
+    
+    <div id="result">
+        <h3>Response:</h3>
+        <pre id="responseData"></pre>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
